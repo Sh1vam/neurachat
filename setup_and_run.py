@@ -44,7 +44,7 @@ def main():
     if not os.getenv("GROQ_API_KEY"):
         env_file = Path(".env")
         if not env_file.exists():
-            env_file.write_text('GROQ_API_KEY=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\n')
+            env_file.write_text('GROQ_API_KEY=gsk_\n')
             print("\n✅ Created .env file with Groq API key")
 
     # Create outputs directory
