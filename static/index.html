@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuraChat Ultra — Agentic AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   DESIGN SYSTEM — Refined Dark, Inspired by Claude
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --bg:        #1a1b1e;
+  --bg-panel:  #212226;
+  --bg-input:  #2a2b2f;
+  --bg-hover:  #2e2f34;
+  --bg-active: #35363c;
+  --border:    rgba(255,255,255,0.07);
+  --border-2:  rgba(255,255,255,0.12);
+  --accent:    #da7756;
+  --accent-2:  #c96a42;
+  --accent-glow: rgba(218,119,86,0.15);
+  --accent-border: rgba(218,119,86,0.3);
+  --text-1:    #ececec;
+  --text-2:    #9b9b9b;
+  --text-3:    #5e5e5e;
+  --user-bg:   rgba(218,119,86,0.08);
+  --user-border: rgba(218,119,86,0.2);
+  --success:   #4ade80;
+  --warning:   #fbbf24;
+  --error:     #f87171;
+  --info:      #60a5fa;
+  --r:         10px;
+  --r-sm:      7px;
+  --r-lg:      16px;
+  --font:      'Geist', -apple-system, sans-serif;
+  --mono:      'Geist Mono', monospace;
+  --sidebar-w: 260px;
+  --topbar-h:  52px;
+  --input-max: 840px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.4);
+  --shadow:    0 4px 20px rgba(0,0,0,.5);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,.6);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); }
+body { font-family: var(--font); color: var(--text-1); display: flex; }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* ─── SIDEBAR ──────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  transition: transform .25s cubic-bezier(.4,0,.2,1);
+}
+.sidebar-hidden { transform: translateX(-100%); position: absolute; height: 100%; }
+
+.sb-logo {
+  padding: 16px 14px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.logo-mark {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, var(--accent), #e8a87c);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(218,119,86,0.35);
+}
+.logo-text { font-size: .9rem; font-weight: 700; letter-spacing: -.3px; }
+.logo-badge {
+  margin-left: auto;
+  font-size: .6rem; font-weight: 600;
+  background: var(--accent-glow); color: var(--accent);
+  border: 1px solid var(--accent-border);
+  border-radius: 4px; padding: 1px 5px;
+}
+
+/* New Chat Button */
+.new-chat-btn {
+  margin: 10px 10px 6px;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-sm);
+  color: var(--text-2);
+  font-family: var(--font);
+  font-size: .8rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition: all .15s;
+  width: calc(100% - 20px);
+}
+.new-chat-btn:hover { background: var(--bg-hover); color: var(--text-1); border-color: var(--border-2); }
+.new-chat-btn svg { opacity: .7; }
+
+/* Model Selector */
+.sb-section { padding: 8px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.sb-label { font-size: .62rem; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: .9px; margin-bottom: 5px; display: flex; align-items: center; gap: 5px; }
+.model-select {
+  width: 100%; padding: 7px 10px;
+  background: var(--bg-input); border: 1px solid var(--border);
+  color: var(--text-1); border-radius: var(--r-sm);
+  font-family: var(--font); font-size: .78rem;
+  cursor: pointer; outline: none; appearance: none;
+  transition: border-color .15s;
+}
+.model-select:focus { border-color: var(--accent); }
+
+/* Token Counter */
+.token-panel { padding: 8px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.tok-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.tok-reset-btn {
+  font-size: .67rem; color: var(--accent); cursor: pointer;
+  background: none; border: none; font-family: var(--font);
+  opacity: .8; transition: opacity .15s;
+}
+.tok-reset-btn:hover { opacity: 1; }
+.tok-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.tok-card {
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 8px;
+}
+.tok-lbl { font-size: .6rem; color: var(--text-3); margin-bottom: 2px; }
+.tok-val { font-family: var(--mono); font-size: .78rem; color: var(--text-1); font-weight: 600; }
+.tok-progress { margin-top: 6px; }
+.tok-prog-row { display: flex; justify-content: space-between; font-size: .62rem; color: var(--text-3); margin-bottom: 3px; }
+.tok-prog-track { height: 2px; background: var(--bg-active); border-radius: 99px; overflow: hidden; }
+.tok-prog-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #e8a87c); border-radius: 99px; transition: width .8s cubic-bezier(.4,0,.2,1); }
+.tok-cost-row { display: flex; justify-content: flex-end; margin-top: 4px; }
+.tok-cost { font-family: var(--mono); font-size: .62rem; color: var(--text-3); }
+
+/* History */
+.hist-area { flex: 1; overflow-y: auto; padding: 6px 6px; }
+.hist-date-label { font-size: .6rem; color: var(--text-3); padding: 6px 8px 3px; font-weight: 600; text-transform: uppercase; letter-spacing: .7px; }
+.hist-item {
+  padding: 6px 8px; border-radius: 6px;
+  font-size: .78rem; color: var(--text-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: pointer; transition: all .12s;
+  margin-bottom: 1px;
+  display: flex; align-items: center; gap: 6px;
+}
+.hist-item:hover { background: var(--bg-hover); color: var(--text-1); }
+.hist-item.active { background: var(--bg-active); color: var(--text-1); }
+.hist-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; opacity: .6; }
+.hist-del {
+  margin-left: auto; flex-shrink: 0; opacity: 0;
+  background: none; border: none; color: var(--error);
+  cursor: pointer; font-size: 12px; padding: 0 2px;
+  transition: opacity .15s;
+}
+.hist-item:hover .hist-del { opacity: .6; }
+.hist-del:hover { opacity: 1 !important; }
+
+/* Capabilities */
+.cap-area { padding: 8px 10px; border-top: 1px solid var(--border); flex-shrink: 0; }
+.cap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.cap-chip {
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: 5px; padding: 4px 7px;
+  font-size: .63rem; color: var(--text-2);
+  display: flex; align-items: center; gap: 4px;
+}
+.dot-on { width: 5px; height: 5px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+.dot-off { background: var(--text-3); }
+
+/* ─── MAIN ────────────────────────────────────────────────── */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+/* Topbar */
+.topbar {
+  height: var(--topbar-h);
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 14px; gap: 8px; flex-shrink: 0;
+}
+.tb-menu-btn {
+  width: 30px; height: 30px; flex-shrink: 0;
+  background: none; border: none; color: var(--text-2);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; transition: all .15s;
+}
+.tb-menu-btn:hover { background: var(--bg-hover); color: var(--text-1); }
+.tb-title { flex: 1; font-size: .85rem; font-weight: 500; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tb-badge {
+  font-size: .65rem; font-weight: 600; padding: 2px 8px;
+  background: var(--accent-glow); color: var(--accent);
+  border: 1px solid var(--accent-border); border-radius: 99px;
+  white-space: nowrap;
+}
+.tb-btn {
+  width: 30px; height: 30px;
+  background: none; border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text-2);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; transition: all .15s;
+}
+.tb-btn:hover { background: var(--bg-hover); color: var(--text-1); border-color: var(--border-2); }
+.tb-btn.active { background: var(--accent-glow); color: var(--accent); border-color: var(--accent-border); }
+
+/* Loading bar */
+.lbar { height: 2px; background: transparent; flex-shrink: 0; overflow: hidden; }
+.lbar.running { background: rgba(218,119,86,.15); }
+.lbar-fill {
+  height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), #e8a87c);
+  border-radius: 99px; animation: none;
+}
+.lbar.running .lbar-fill { animation: lbar-slide 1.4s ease-in-out infinite; }
+@keyframes lbar-slide { 0%{width:0;margin-left:0} 50%{width:60%;margin-left:20%} 100%{width:0;margin-left:100%} }
+
+/* ─── MESSAGES ────────────────────────────────────────────── */
+.msgs-wrap { flex: 1; overflow-y: auto; }
+.msgs { max-width: 860px; margin: 0 auto; padding: 24px 20px 20px; }
+
+/* Welcome Screen */
+.welcome {
+  min-height: calc(100vh - var(--topbar-h) - 130px);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 20px;
+}
+.welcome-icon {
+  width: 72px; height: 72px; border-radius: 20px;
+  background: linear-gradient(135deg, var(--accent) 0%, #e8a87c 50%, #c96a42 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; margin-bottom: 20px;
+  box-shadow: 0 0 50px rgba(218,119,86,0.3), 0 0 100px rgba(218,119,86,0.1);
+  animation: icon-float 4s ease-in-out infinite;
+}
+@keyframes icon-float {
+  0%,100%{ transform: translateY(0); box-shadow: 0 0 50px rgba(218,119,86,.3); }
+  50%{ transform: translateY(-5px); box-shadow: 0 12px 60px rgba(218,119,86,.45); }
+}
+.welcome h1 { font-size: 2rem; font-weight: 700; letter-spacing: -.5px; margin-bottom: 10px; }
+.welcome-sub { font-size: .9rem; color: var(--text-2); max-width: 500px; text-align: center; line-height: 1.7; margin-bottom: 32px; }
+
+/* Suggestion Grid */
+.suggest-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; max-width: 620px; }
+.suggest-card {
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 12px 14px;
+  cursor: pointer; transition: all .18s;
+  text-align: left;
+}
+.suggest-card:hover { background: var(--bg-hover); border-color: var(--border-2); transform: translateY(-1px); }
+.suggest-card-icon { font-size: 18px; margin-bottom: 6px; }
+.suggest-card-text { font-size: .78rem; color: var(--text-2); line-height: 1.4; }
+.suggest-card-bold { font-size: .8rem; font-weight: 500; color: var(--text-1); margin-bottom: 2px; }
+
+/* Message rows */
+.msg-row { display: flex; gap: 12px; margin-bottom: 20px; animation: msg-in .2s ease; }
+@keyframes msg-in { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+.msg-row.user { flex-direction: row-reverse; }
+
+.msg-avatar {
+  width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 13px;
+  margin-top: 2px;
+}
+.msg-row.user .msg-avatar { background: linear-gradient(135deg, var(--accent), #e8a87c); }
+.msg-row.ai .msg-avatar { background: var(--bg-active); border: 1px solid var(--border-2); }
+
+.msg-body { max-width: 75%; min-width: 80px; }
+.msg-row.user .msg-body { display: flex; flex-direction: column; align-items: flex-end; }
+
+.bubble {
+  padding: 12px 16px; border-radius: var(--r);
+  font-size: .875rem; line-height: 1.65;
+}
+.msg-row.user .bubble {
+  background: var(--user-bg); border: 1px solid var(--user-border);
+  border-top-right-radius: 3px; color: var(--text-1);
+}
+.msg-row.ai .bubble {
+  background: transparent; padding: 4px 0;
+  color: var(--text-1);
+}
+
+/* Markdown styling in bubbles */
+.bubble h1,.bubble h2,.bubble h3 { font-weight: 600; margin: 12px 0 6px; color: var(--text-1); }
+.bubble h1 { font-size: 1.2em; }
+.bubble h2 { font-size: 1.05em; }
+.bubble h3 { font-size: .95em; color: var(--accent); }
+.bubble p { margin-bottom: 8px; }
+.bubble ul,.bubble ol { margin: 6px 0 10px 20px; }
+.bubble li { margin-bottom: 4px; }
+.bubble code:not(pre code) {
+  background: var(--bg-active); border: 1px solid var(--border-2);
+  padding: 1px 5px; border-radius: 4px; font-family: var(--mono); font-size: .82em;
+  color: #e8a87c;
+}
+.bubble blockquote {
+  border-left: 3px solid var(--accent); padding-left: 12px; margin: 8px 0;
+  color: var(--text-2); font-style: italic;
+}
+.bubble table { border-collapse: collapse; width: 100%; margin: 8px 0; }
+.bubble th,.bubble td { border: 1px solid var(--border-2); padding: 6px 10px; font-size: .82rem; }
+.bubble th { background: var(--bg-active); color: var(--accent); font-weight: 600; }
+.bubble a { color: var(--accent); text-decoration: none; }
+.bubble a:hover { text-decoration: underline; }
+
+/* Code blocks */
+.bubble pre {
+  background: #161819; border: 1px solid var(--border);
+  border-radius: var(--r-sm); margin: 8px 0; overflow: hidden;
+}
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 12px; background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--border);
+}
+.code-lang { font-family: var(--mono); font-size: .68rem; color: var(--text-3); text-transform: uppercase; letter-spacing: .5px; }
+.code-copy {
+  font-size: .68rem; color: var(--text-3); background: none; border: none;
+  cursor: pointer; font-family: var(--font); padding: 2px 6px;
+  border-radius: 4px; transition: all .15s;
+}
+.code-copy:hover { color: var(--text-1); background: var(--bg-hover); }
+.bubble pre code { display: block; padding: 12px 14px; font-size: .8rem; overflow-x: auto; background: transparent !important; line-height: 1.6; }
+
+.msg-meta { display: flex; align-items: center; gap: 8px; margin-top: 5px; flex-wrap: wrap; }
+.msg-time { font-size: .65rem; color: var(--text-3); }
+.msg-tok {
+  font-size: .63rem; font-family: var(--mono); color: var(--text-3);
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: 4px; padding: 1px 5px;
+}
+.msg-cost { font-size: .63rem; font-family: var(--mono); color: var(--text-3); }
+
+/* Action buttons */
+.msg-actions { display: flex; gap: 4px; margin-top: 4px; opacity: 0; transition: opacity .15s; }
+.msg-row:hover .msg-actions { opacity: 1; }
+.action-btn {
+  background: none; border: 1px solid var(--border); border-radius: 5px;
+  color: var(--text-3); cursor: pointer; padding: 3px 7px;
+  font-size: .67rem; font-family: var(--font); transition: all .15s;
+  display: flex; align-items: center; gap: 4px;
+}
+.action-btn:hover { background: var(--bg-hover); color: var(--text-1); border-color: var(--border-2); }
+
+/* File download card */
+.file-card {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 10px 14px; margin-top: 8px;
+  cursor: pointer; transition: all .15s; text-decoration: none;
+}
+.file-card:hover { background: var(--bg-hover); border-color: var(--border-2); }
+.file-card-icon { font-size: 20px; }
+.file-card-info { flex: 1; }
+.file-card-name { font-size: .8rem; font-weight: 500; color: var(--text-1); }
+.file-card-size { font-size: .68rem; color: var(--text-3); }
+.file-card-dl { font-size: .72rem; color: var(--accent); font-weight: 500; }
+
+/* Image in message */
+.msg-image { max-width: 100%; border-radius: var(--r); border: 1px solid var(--border); margin-top: 8px; display: block; }
+
+/* Typing indicator */
+.typing-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--text-3); margin: 0 2px; animation: typing .9s ease-in-out infinite; }
+.typing-dot:nth-child(2) { animation-delay: .15s; }
+.typing-dot:nth-child(3) { animation-delay: .3s; }
+@keyframes typing { 0%,80%,100%{transform:scale(.7);opacity:.4} 40%{transform:scale(1);opacity:1} }
+
+/* ─── INPUT BAR ───────────────────────────────────────────── */
+.input-area { padding: 12px 16px 16px; background: var(--bg); flex-shrink: 0; }
+.input-inner { max-width: var(--input-max); margin: 0 auto; }
+
+/* RAG/Mode toggles */
+.input-modes { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+.mode-toggle {
+  padding: 4px 10px; border-radius: 99px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-3); font-size: .72rem; font-weight: 500;
+  font-family: var(--font); cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; gap: 5px;
+}
+.mode-toggle:hover { border-color: var(--border-2); color: var(--text-2); }
+.mode-toggle.on { background: var(--accent-glow); border-color: var(--accent-border); color: var(--accent); }
+.mode-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+/* Input box */
+.input-box {
+  display: flex; align-items: flex-end; gap: 8px;
+  background: var(--bg-panel); border: 1px solid var(--border-2);
+  border-radius: 14px; padding: 8px 8px 8px 14px;
+  transition: border-color .15s; box-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+.input-box:focus-within { border-color: rgba(218,119,86,0.4); }
+
+/* Attachment button */
+.attach-btn {
+  width: 32px; height: 32px; flex-shrink: 0;
+  background: none; border: none; color: var(--text-3);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  border-radius: 7px; transition: all .15s; align-self: flex-end;
+}
+.attach-btn:hover { background: var(--bg-hover); color: var(--text-1); }
+
+textarea#inp {
+  flex: 1; background: none; border: none; outline: none; resize: none;
+  color: var(--text-1); font-family: var(--font); font-size: .875rem;
+  line-height: 1.5; min-height: 24px; max-height: 200px;
+  padding: 6px 0; caret-color: var(--accent);
+}
+textarea#inp::placeholder { color: var(--text-3); }
+
+.input-actions { display: flex; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+
+.char-count { font-size: .65rem; color: var(--text-3); font-family: var(--mono); align-self: flex-end; padding-bottom: 8px; }
+
+.send-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--accent); border: none;
+  color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .15s; flex-shrink: 0;
+}
+.send-btn:hover:not(:disabled) { background: var(--accent-2); transform: scale(1.05); }
+.send-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+/* Attachment preview */
+.attach-preview {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 8px; padding: 0 2px;
+}
+.attach-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: 6px; padding: 5px 9px; font-size: .75rem;
+  color: var(--text-2);
+}
+.attach-chip-rm {
+  background: none; border: none; color: var(--text-3);
+  cursor: pointer; font-size: 13px; padding: 0;
+  transition: color .15s; line-height: 1;
+}
+.attach-chip-rm:hover { color: var(--error); }
+.attach-img-thumb { width: 36px; height: 36px; object-fit: cover; border-radius: 4px; }
+
+/* ─── RIGHT PANEL ─────────────────────────────────────────── */
+.rpanel {
+  width: 340px; min-width: 340px;
+  background: var(--bg-panel); border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  transform: translateX(100%); position: absolute;
+  right: 0; top: 0; height: 100%; z-index: 100;
+  transition: transform .25s cubic-bezier(.4,0,.2,1);
+  box-shadow: var(--shadow-lg);
+}
+.rpanel.open { transform: none; position: relative; }
+
+.rp-header {
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.rp-title { font-size: .85rem; font-weight: 600; flex: 1; }
+.rp-close {
+  background: none; border: none; color: var(--text-3);
+  cursor: pointer; font-size: 16px; padding: 3px;
+  border-radius: 4px; transition: all .15s;
+}
+.rp-close:hover { color: var(--text-1); background: var(--bg-hover); }
+.rp-tabs { display: flex; gap: 1px; padding: 6px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.rp-tab {
+  flex: 1; padding: 6px; border-radius: 6px; border: none;
+  background: none; color: var(--text-3); font-family: var(--font);
+  font-size: .75rem; font-weight: 500; cursor: pointer; transition: all .15s;
+}
+.rp-tab.active { background: var(--bg-active); color: var(--text-1); }
+.rp-body { flex: 1; overflow-y: auto; padding: 10px; }
+.rp-section { margin-bottom: 14px; }
+.rp-sec-label { font-size: .65rem; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+.rp-input {
+  width: 100%; padding: 8px 10px;
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--r-sm); color: var(--text-1);
+  font-family: var(--font); font-size: .8rem; outline: none; transition: border-color .15s;
+}
+.rp-input:focus { border-color: var(--accent); }
+.rp-textarea { resize: vertical; min-height: 80px; }
+.rp-btn {
+  width: 100%; padding: 8px; border-radius: var(--r-sm);
+  background: var(--accent); border: none; color: white;
+  font-family: var(--font); font-size: .8rem; font-weight: 600;
+  cursor: pointer; transition: all .15s; margin-top: 6px;
+}
+.rp-btn:hover { background: var(--accent-2); }
+.rp-btn:disabled { opacity: .5; cursor: not-allowed; }
+.rp-btn.secondary { background: var(--bg-active); color: var(--text-1); border: 1px solid var(--border-2); }
+.rp-btn.secondary:hover { background: var(--bg-hover); }
+
+/* Doc items */
+.doc-item {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 8px 10px; margin-bottom: 5px;
+}
+.doc-icon { font-size: 16px; flex-shrink: 0; }
+.doc-info { flex: 1; min-width: 0; }
+.doc-name { font-size: .78rem; font-weight: 500; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-meta { font-size: .65rem; color: var(--text-3); font-family: var(--mono); }
+.doc-del { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 14px; padding: 2px; border-radius: 4px; transition: color .15s; flex-shrink: 0; }
+.doc-del:hover { color: var(--error); }
+
+/* Upload zone */
+.upload-zone {
+  border: 2px dashed var(--border-2); border-radius: var(--r);
+  padding: 20px; text-align: center; cursor: pointer;
+  transition: all .18s; margin-bottom: 10px;
+}
+.upload-zone:hover,.upload-zone.drag { border-color: var(--accent); background: var(--accent-glow); }
+.upload-zone p { font-size: .78rem; color: var(--text-2); margin-top: 4px; }
+.upload-zone span { font-size: 22px; }
+.upload-zone input { display: none; }
+
+/* Output files list */
+.out-item {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 8px 10px; margin-bottom: 5px;
+  text-decoration: none; transition: all .15s;
+}
+.out-item:hover { background: var(--bg-hover); border-color: var(--border-2); }
+.out-name { font-size: .78rem; font-weight: 500; color: var(--text-1); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.out-meta { font-size: .63rem; color: var(--text-3); }
+
+/* Slider styling */
+.slider-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.slider-label { font-size: .75rem; color: var(--text-2); min-width: 90px; }
+.slider-val { font-family: var(--mono); font-size: .75rem; color: var(--accent); min-width: 36px; text-align: right; }
+input[type=range] {
+  flex: 1; accent-color: var(--accent);
+  background: var(--bg-active); height: 3px;
+  border-radius: 99px; outline: none; border: none;
+}
+
+/* AI Generate Panel */
+.gen-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 10px; }
+.gen-type-btn {
+  padding: 7px; border-radius: var(--r-sm); border: 1px solid var(--border);
+  background: var(--bg-input); color: var(--text-2); font-family: var(--font);
+  font-size: .7rem; cursor: pointer; transition: all .15s; text-align: center;
+}
+.gen-type-btn.active { background: var(--accent-glow); border-color: var(--accent-border); color: var(--accent); }
+
+/* Info box */
+.info-box {
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 10px 12px;
+  font-size: .75rem; color: var(--text-2); line-height: 1.6;
+}
+.info-box code { font-family: var(--mono); color: var(--accent); background: var(--bg-active); padding: 1px 4px; border-radius: 3px; }
+
+/* ─── TOASTS ──────────────────────────────────────────────── */
+.toasts { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+.toast {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: var(--r);
+  font-size: .8rem; font-weight: 500;
+  background: var(--bg-panel); border: 1px solid var(--border-2);
+  box-shadow: var(--shadow); pointer-events: all;
+  animation: toast-in .2s ease; max-width: 300px;
+}
+@keyframes toast-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+.toast.success { border-color: rgba(74,222,128,.3); color: var(--success); }
+.toast.error { border-color: rgba(248,113,113,.3); color: var(--error); }
+.toast.info { border-color: rgba(96,165,250,.3); color: var(--info); }
+
+/* ─── MODAL ───────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 1000;
+  display: none; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; animation: fade-in .15s ease; }
+@keyframes fade-in { from{opacity:0} to{opacity:1} }
+.modal {
+  background: var(--bg-panel); border: 1px solid var(--border-2);
+  border-radius: var(--r-lg); padding: 20px 22px; width: 90%; max-width: 460px;
+  box-shadow: var(--shadow-lg);
+}
+.modal h3 { font-size: 1rem; font-weight: 600; margin-bottom: 14px; }
+.modal-close { float: right; background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 16px; }
+
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media(max-width:768px) {
+  .sidebar { position: absolute; height: 100%; transform: translateX(-100%); }
+  .sidebar.open { transform: none; }
+  .suggest-grid { grid-template-columns: 1fr; }
+  .rpanel { width: 100%; min-width: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── SIDEBAR ─────────────────────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="logo-mark">🧠</div>
+    <span class="logo-text">NeuraChat</span>
+    <span class="logo-badge">ULTRA</span>
+  </div>
+
+  <button class="new-chat-btn" onclick="newChat()">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    New Conversation
+  </button>
+
+  <!-- Model Selection -->
+  <div class="sb-section">
+    <span class="sb-label">🤖 Model</span>
+    <select class="model-select" id="modelSel" onchange="onModelChange()">
+      <option value="llama-3.3-70b-versatile">Llama 3.3 70B — Best quality</option>
+      <option value="llama-3.1-8b-instant">Llama 3.1 8B — Fastest</option>
+      <option value="meta-llama/llama-4-scout-17b-16e-instruct">Llama 4 Scout 17B — Vision</option>
+      <option value="meta-llama/llama-4-maverick-17b-128e-instruct">Llama 4 Maverick — Advanced</option>
+      <option value="mixtral-8x7b-32768">Mixtral 8x7B — MoE</option>
+      <option value="gemma2-9b-it">Gemma 2 9B — Google</option>
+    </select>
+  </div>
+
+  <!-- Token Counter -->
+  <div class="token-panel" id="tokenPanel">
+    <div class="tok-header">
+      <span class="sb-label" style="margin:0">⚡ Token Usage</span>
+      <button class="tok-reset-btn" onclick="resetTokens()">Reset</button>
+    </div>
+    <div class="tok-grid">
+      <div class="tok-card">
+        <div class="tok-lbl">Input Tokens</div>
+        <div class="tok-val" id="tokIn">0</div>
+      </div>
+      <div class="tok-card">
+        <div class="tok-lbl">Output Tokens</div>
+        <div class="tok-val" id="tokOut">0</div>
+      </div>
+      <div class="tok-card">
+        <div class="tok-lbl">Total Tokens</div>
+        <div class="tok-val" id="tokTotal">0</div>
+      </div>
+      <div class="tok-card">
+        <div class="tok-lbl">Requests</div>
+        <div class="tok-val" id="tokReqs">0</div>
+      </div>
+    </div>
+    <div class="tok-progress">
+      <div class="tok-prog-row">
+        <span>Context usage</span>
+        <span id="tokPct">0%</span>
+      </div>
+      <div class="tok-prog-track"><div class="tok-prog-fill" id="tokBar" style="width:0%"></div></div>
+    </div>
+    <div class="tok-cost-row">
+      <span class="tok-cost">Est. cost: $<span id="tokCost">0.000000</span></span>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="hist-area" id="histArea">
+    <div class="hist-date-label">Today</div>
+  </div>
+
+  <!-- Capabilities -->
+  <div class="cap-area" id="capArea">
+    <span class="sb-label">Capabilities</span>
+    <div class="cap-grid" id="capGrid">
+      <div class="cap-chip"><span class="dot-on"></span>RAG</div>
+      <div class="cap-chip"><span class="dot-on" id="dotVision"></span>Vision</div>
+      <div class="cap-chip"><span class="dot-off" id="dotPptx"></span>PPT Gen</div>
+      <div class="cap-chip"><span class="dot-off" id="dotPdf"></span>PDF Gen</div>
+      <div class="cap-chip"><span class="dot-off" id="dotChart"></span>Charts</div>
+      <div class="cap-chip"><span class="dot-on"></span>Img Gen</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ─── MAIN AREA ────────────────────────────────────────────────────────── -->
+<div class="main" id="mainArea">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <button class="tb-menu-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+    <span class="tb-title" id="topTitle">New Conversation</span>
+    <span class="tb-badge" id="modelBadge">Llama 3.3 70B</span>
+    <button class="tb-btn" onclick="openPanel('rag')" title="Documents">📄</button>
+    <button class="tb-btn" onclick="openPanel('generate')" title="Generate Files">🪄</button>
+    <button class="tb-btn" onclick="openPanel('settings')" title="Settings">⚙️</button>
+    <button class="tb-btn" onclick="openPanel('outputs')" title="Downloads">📥</button>
+  </div>
+  <div class="lbar" id="lbar"><div class="lbar-fill"></div></div>
+
+  <!-- Messages -->
+  <div class="msgs-wrap" id="msgsWrap">
+    <div class="msgs" id="msgs">
+
+      <!-- Welcome -->
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon">🧠</div>
+        <h1>NeuraChat Ultra</h1>
+        <p class="welcome-sub">Your agentic AI assistant — analyze documents, generate files, understand images, write code, and learn AI concepts deeply.</p>
+        <div class="suggest-grid">
+          <div class="suggest-card" onclick="setPrompt('Explain how RAG works and show me how it\'s implemented in this app')">
+            <div class="suggest-card-icon">🔍</div>
+            <div class="suggest-card-bold">Explain RAG</div>
+            <div class="suggest-card-text">How retrieval augmented generation works, with code</div>
+          </div>
+          <div class="suggest-card" onclick="setPrompt('Create a 6-slide PowerPoint presentation about Machine Learning fundamentals')">
+            <div class="suggest-card-icon">📊</div>
+            <div class="suggest-card-bold">Generate a PPT</div>
+            <div class="suggest-card-text">Create a presentation on any topic</div>
+          </div>
+          <div class="suggest-card" onclick="setPrompt('Write a Python script that implements a simple neural network from scratch with NumPy')">
+            <div class="suggest-card-icon">🐍</div>
+            <div class="suggest-card-bold">Write Code</div>
+            <div class="suggest-card-text">Neural network, API, data pipeline — anything</div>
+          </div>
+          <div class="suggest-card" onclick="setPrompt('Explain how to fine-tune Llama 3 with QLoRA on Google Colab — step by step with code')">
+            <div class="suggest-card-icon">🧬</div>
+            <div class="suggest-card-bold">Fine-tune an LLM</div>
+            <div class="suggest-card-text">Train your own model, no GPU required</div>
+          </div>
+          <div class="suggest-card" onclick="setPrompt('Generate an image of a futuristic AI research laboratory with glowing servers')">
+            <div class="suggest-card-icon">🎨</div>
+            <div class="suggest-card-bold">Generate Image</div>
+            <div class="suggest-card-text">Create images using AI (free, no key needed)</div>
+          </div>
+          <div class="suggest-card" onclick="setPrompt('Create a Jupyter notebook that demonstrates ChromaDB vector search with sentence transformers')">
+            <div class="suggest-card-icon">📓</div>
+            <div class="suggest-card-bold">Create Notebook</div>
+            <div class="suggest-card-text">Generate a .ipynb with working code</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="input-area">
+    <div class="input-inner">
+      <div class="attach-preview" id="attachPreview"></div>
+      <div class="input-modes">
+        <button class="mode-toggle" id="togRag" onclick="toggleMode('rag')" title="Use uploaded documents as context">
+          <span class="mode-dot"></span>RAG
+        </button>
+        <button class="mode-toggle" id="togStream" onclick="toggleMode('stream')" title="Stream response token by token" style="--accent-glow:rgba(74,222,128,.1);--accent-border:rgba(74,222,128,.3);--accent:#4ade80">
+          <span class="mode-dot"></span>Stream
+        </button>
+        <button class="mode-toggle" id="togCode" onclick="toggleMode('code')" title="Prioritize code responses" style="--accent-glow:rgba(96,165,250,.1);--accent-border:rgba(96,165,250,.3);--accent:#60a5fa">
+          <span class="mode-dot"></span>Code Mode
+        </button>
+        <label class="mode-toggle" title="Upload image or document">
+          📎 Attach
+          <input type="file" id="fileIn" style="display:none" accept=".pdf,.txt,.md,.py,.js,.json,.csv,.docx,.png,.jpg,.jpeg,.gif,.webp" multiple onchange="onFileSelect(event)">
+        </label>
+      </div>
+      <div class="input-box">
+        <textarea id="inp" placeholder="Ask anything — analyze documents, generate files, write code, explain AI concepts…" rows="1"
+          onkeydown="onKey(event)" oninput="autoH(this);updCC()"></textarea>
+        <div class="input-actions">
+          <span class="char-count" id="charCnt">0</span>
+          <button class="send-btn" id="sendBtn" onclick="send()" title="Send (Enter)">
+            <svg width="14" height="14" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:7px;font-size:.65rem;color:var(--text-3)">
+        NeuraChat Ultra · Groq API · <span id="statusText">Ready</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── RIGHT PANEL ──────────────────────────────────────────────────────── -->
+<div class="rpanel" id="rpanel">
+  <div class="rp-header">
+    <span class="rp-title" id="rpTitle">Documents</span>
+    <button class="rp-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="rp-tabs" id="rpTabs" style="display:none"></div>
+  <div class="rp-body" id="rpBody"></div>
+</div>
+
+<!-- ─── TOASTS ───────────────────────────────────────────────────────────── -->
+<div class="toasts" id="toasts"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════
+const API = '';  // Same origin
+const state = {
+  convId: null,
+  model: 'llama-3.3-70b-versatile',
+  modes: { rag: false, stream: true, code: false },
+  attachments: [],  // { file, type, name, preview?, content? }
+  settings: { temperature: 0.7, maxTokens: 4096, systemPrompt: '' },
+  tokenStats: { prompt: 0, completion: 0, total: 0, requests: 0, cost: 0 },
+  sidebarOpen: true,
+  panelOpen: null,
+  generating: false,
+  titleSet: false,
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  // Toggle stream ON by default
+  state.modes.stream = true;
+  document.getElementById('togStream').classList.add('on');
+
+  // Configure marked
+  marked.setOptions({
+    highlight: (code, lang) => {
+      if (lang && hljs.getLanguage(lang)) {
+        try { return hljs.highlight(code, { language: lang }).value; } catch{}
+      }
+      return hljs.highlightAuto(code).value;
+    },
+    breaks: true, gfm: true
+  });
+
+  // Load capabilities
+  await loadCapabilities();
+  // Start token polling
+  setInterval(pollTokens, 4000);
+  await pollTokens();
+});
+
+async function loadCapabilities() {
+  try {
+    const r = await fetch(`${API}/api/capabilities`);
+    const c = await r.json();
+    document.getElementById('dotPptx').className = c.pptx_gen ? 'dot-on' : 'dot-off';
+    document.getElementById('dotPdf').className = c.pdf_gen ? 'dot-on' : 'dot-off';
+    document.getElementById('dotChart').className = c.charts ? 'dot-on' : 'dot-off';
+    document.getElementById('dotVision').className = 'dot-on';
+  } catch {}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CHAT SEND
+// ═══════════════════════════════════════════════════════════════════════════
+async function send() {
+  const inp = document.getElementById('inp');
+  const text = inp.value.trim();
+  if (!text && state.attachments.length === 0) return;
+  if (state.generating) return;
+
+  const model = document.getElementById('modelSel').value;
+  state.model = model;
+
+  // Process attachments
+  let messageText = text;
+  let imageAttachment = null;
+
+  for (const att of state.attachments) {
+    if (att.type === 'image') {
+      imageAttachment = att;
+    } else if (att.type === 'doc') {
+      // Upload doc to RAG if RAG mode on, otherwise just mention it
+      if (state.modes.rag) {
+        await uploadToRAG(att.file);
+        messageText = `[Document "${att.name}" uploaded to knowledge base]\n\n${messageText}`;
+      } else {
+        messageText = `[Attached file: ${att.name}]\n\n${messageText}`;
+      }
+    }
+  }
+
+  if (!messageText && !imageAttachment) { toast('Type a message first', 'info'); return; }
+
+  // Clear input
+  inp.value = ''; autoH(inp); updCC();
+  clearAttachments();
+  document.getElementById('welcome').style.display = 'none';
+
+  // Display user message
+  addUserMessage(messageText, imageAttachment?.preview);
+
+  if (!state.titleSet) { setTitle(messageText); state.titleSet = true; }
+
+  state.generating = true;
+  document.getElementById('sendBtn').disabled = true;
+  setLoading(true);
+  setStatus('Thinking…');
+
+  // Handle image analysis separately
+  if (imageAttachment) {
+    await sendImageAnalysis(imageAttachment, messageText || 'Describe this image in detail. Extract any text, data, or insights.');
+    state.generating = false;
+    document.getElementById('sendBtn').disabled = false;
+    setLoading(false);
+    setStatus('Ready');
+    return;
+  }
+
+  // Check if message wants file generation
+  const genType = detectGenerationType(messageText);
+  if (genType) {
+    await sendWithGeneration(messageText, genType, model);
+  } else {
+    await sendChat(messageText, model);
+  }
+
+  state.generating = false;
+  document.getElementById('sendBtn').disabled = false;
+  setLoading(false);
+  setStatus('Ready');
+  await pollTokens();
+}
+
+function detectGenerationType(text) {
+  const t = text.toLowerCase();
+  if ((t.includes('presentation') || t.includes('pptx') || t.includes('powerpoint') || t.includes('slides')) && (t.includes('create') || t.includes('generate') || t.includes('make') || t.includes('build'))) return 'pptx';
+  if ((t.includes('pdf') || t.includes('report')) && (t.includes('create') || t.includes('generate') || t.includes('make'))) return 'pdf';
+  if ((t.includes('notebook') || t.includes('ipynb') || t.includes('jupyter')) && (t.includes('create') || t.includes('generate') || t.includes('make'))) return 'notebook';
+  if ((t.includes('chart') || t.includes('graph') || t.includes('plot')) && (t.includes('create') || t.includes('generate') || t.includes('make'))) return 'chart';
+  if ((t.includes('image') || t.includes('picture') || t.includes('illustration')) && (t.includes('generate') || t.includes('create') || t.includes('draw'))) return 'image';
+  if ((t.includes('word') || t.includes('docx') || t.includes('document')) && (t.includes('create') || t.includes('generate') || t.includes('write'))) return 'docx';
+  return null;
+}
+
+async function sendWithGeneration(text, genType, model) {
+  const aiRow = addAIMessage('');
+  const bubble = aiRow.querySelector('.bubble');
+
+  if (genType === 'image') {
+    bubble.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+    try {
+      const resp = await fetch(`${API}/api/generate/image`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ prompt: text, width: 1024, height: 1024 })
+      });
+      const data = await resp.json();
+      const imgUrl = data.image_url;
+      bubble.innerHTML = `
+        <p>Here's your generated image!</p>
+        <img src="${imgUrl}" class="msg-image" alt="Generated image" onerror="this.src='';this.alt='Image loading — try opening URL directly'">
+        <p style="font-size:.75rem;color:var(--text-3);margin-top:6px">
+          🎨 Generated via Pollinations.ai (free) · 
+          <a href="${imgUrl}" target="_blank" style="color:var(--accent)">Open full size ↗</a>
+        </p>`;
+      hljs.highlightAll();
+    } catch(e) {
+      bubble.innerHTML = `<span style="color:var(--error)">Image generation failed: ${e.message}</span>`;
+    }
+    return;
+  }
+
+  // For other types — ask AI to structure content then generate
+  bubble.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+  setStatus(`Generating ${genType.toUpperCase()}…`);
+
+  try {
+    const resp = await fetch(`${API}/api/ai-generate`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ type: genType, topic: text, instructions: text, model })
+    });
+    const data = await resp.json();
+
+    if (data.success) {
+      const icons = { pptx: '📊', pdf: '📕', notebook: '📓', chart: '📈', docx: '📘' };
+      const names = { pptx: 'PowerPoint', pdf: 'PDF Report', notebook: 'Jupyter Notebook', chart: 'Chart', docx: 'Word Document' };
+      bubble.innerHTML = `
+        <p>✅ Your ${names[genType]} has been generated!</p>
+        <a href="${data.download_url}" class="file-card" download="${data.filename}">
+          <span class="file-card-icon">${icons[genType]}</span>
+          <div class="file-card-info">
+            <div class="file-card-name">${data.filename}</div>
+            <div class="file-card-size">AI-generated · ${data.prompt_tokens || 0} prompt tokens</div>
+          </div>
+          <span class="file-card-dl">Download ↓</span>
+        </a>
+        <p style="font-size:.75rem;color:var(--text-3);margin-top:8px">The file is also available in the Downloads panel (📥 button)</p>`;
+    } else {
+      bubble.innerHTML = `<span style="color:var(--error)">Generation failed: ${JSON.stringify(data)}</span>`;
+    }
+  } catch(e) {
+    bubble.innerHTML = `<span style="color:var(--error)">Failed: ${e.message}</span>`;
+  }
+}
+
+async function sendImageAnalysis(att, question) {
+  const aiRow = addAIMessage('');
+  const bubble = aiRow.querySelector('.bubble');
+  bubble.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+  setStatus('Analyzing image…');
+
+  try {
+    const formData = new FormData();
+    formData.append('file', att.file);
+    formData.append('question', question);
+    formData.append('model', 'meta-llama/llama-4-scout-17b-16e-instruct');
+
+    const resp = await fetch(`${API}/api/analyze-image`, { method: 'POST', body: formData });
+    const data = await resp.json();
+    bubble.innerHTML = renderMarkdown(data.analysis || data.error || 'No response');
+    hljs.highlightAll();
+    addCopyButtons(bubble);
+  } catch(e) {
+    bubble.innerHTML = `<span style="color:var(--error)">Image analysis failed: ${e.message}</span>`;
+  }
+}
+
+async function sendChat(text, model) {
+  const sysExtra = state.modes.code ? '\n\nFOCUS: Prioritize working code examples with detailed inline comments.' : '';
+  const payload = {
+    message: text,
+    conversation_id: state.convId,
+    model,
+    temperature: state.settings.temperature,
+    max_tokens: state.settings.maxTokens,
+    stream: state.modes.stream,
+    use_rag: state.modes.rag,
+    system_prompt: state.settings.systemPrompt ? state.settings.systemPrompt + sysExtra : null
+  };
+
+  if (state.modes.stream) {
+    await sendStreaming(payload);
+  } else {
+    await sendNonStreaming(payload);
+  }
+}
+
+async function sendStreaming(payload) {
+  const aiRow = addAIMessage('');
+  const bubble = aiRow.querySelector('.bubble');
+  let fullText = '';
+  let ptok = 0, ctok = 0, cost = 0;
+
+  bubble.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+
+  try {
+    const resp = await fetch(`${API}/api/chat`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let started = false;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const text = decoder.decode(value);
+      const lines = text.split('\n').filter(l => l.startsWith('data: '));
+
+      for (const line of lines) {
+        try {
+          const d = JSON.parse(line.slice(6));
+          if (d.error) { bubble.innerHTML += `<span style="color:var(--error)"> [Error: ${d.error}]</span>`; break; }
+          if (d.conv_id) state.convId = d.conv_id;
+          if (d.token) {
+            if (!started) { bubble.innerHTML = ''; started = true; }
+            fullText += d.token;
+            bubble.innerHTML = renderMarkdown(fullText) + '<span class="typing-cursor">▋</span>';
+            scrollBottom();
+          }
+          if (d.done) {
+            ptok = d.prompt_tokens || 0;
+            ctok = d.completion_tokens || 0;
+            cost = d.cost || 0;
+          }
+        } catch {}
+      }
+    }
+
+    bubble.innerHTML = renderMarkdown(fullText);
+    hljs.highlightAll();
+    addCopyButtons(bubble);
+
+    // Token meta
+    const meta = aiRow.querySelector('.msg-meta');
+    if (meta && ptok) {
+      meta.innerHTML = `
+        <span class="msg-time">${now()}</span>
+        <span class="msg-tok">📥 ${ptok.toLocaleString()} in</span>
+        <span class="msg-tok">📤 ${ctok.toLocaleString()} out</span>
+        <span class="msg-cost">$${cost.toFixed(6)}</span>`;
+    }
+
+  } catch(e) {
+    bubble.innerHTML = `<span style="color:var(--error)">Stream failed: ${e.message}</span>`;
+  }
+  scrollBottom();
+}
+
+async function sendNonStreaming(payload) {
+  const aiRow = addAIMessage('');
+  const bubble = aiRow.querySelector('.bubble');
+  bubble.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+
+  try {
+    const resp = await fetch(`${API}/api/chat`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({...payload, stream: false})
+    });
+    const data = await resp.json();
+    if (data.response) {
+      bubble.innerHTML = renderMarkdown(data.response);
+      hljs.highlightAll();
+      addCopyButtons(bubble);
+      state.convId = data.conv_id;
+    } else {
+      bubble.innerHTML = `<span style="color:var(--error)">${data.detail || 'Error'}</span>`;
+    }
+  } catch(e) {
+    bubble.innerHTML = `<span style="color:var(--error)">Request failed: ${e.message}</span>`;
+  }
+  scrollBottom();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MESSAGE RENDERING
+// ═══════════════════════════════════════════════════════════════════════════
+function addUserMessage(text, imgPreview) {
+  const msgs = document.getElementById('msgs');
+  const row = document.createElement('div');
+  row.className = 'msg-row user';
+  row.innerHTML = `
+    <div class="msg-avatar">👤</div>
+    <div class="msg-body">
+      ${imgPreview ? `<img src="${imgPreview}" class="msg-image" style="max-height:200px;margin-bottom:8px">` : ''}
+      <div class="bubble">${escHtml(text)}</div>
+      <div class="msg-meta"><span class="msg-time">${now()}</span></div>
+    </div>`;
+  msgs.appendChild(row);
+  scrollBottom();
+  return row;
+}
+
+function addAIMessage(text) {
+  const msgs = document.getElementById('msgs');
+  const row = document.createElement('div');
+  row.className = 'msg-row ai';
+  row.innerHTML = `
+    <div class="msg-avatar">🧠</div>
+    <div class="msg-body" style="max-width:100%;flex:1">
+      <div class="bubble">${text ? renderMarkdown(text) : ''}</div>
+      <div class="msg-meta">
+        <span class="msg-time">${now()}</span>
+      </div>
+      <div class="msg-actions">
+        <button class="action-btn" onclick="copyMsgText(this)">📋 Copy</button>
+        <button class="action-btn" onclick="regenerate()">↺ Retry</button>
+      </div>
+    </div>`;
+  msgs.appendChild(row);
+  scrollBottom();
+  return row;
+}
+
+function renderMarkdown(text) {
+  // Pre-process code blocks to add header
+  let processed = text.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
+    const l = lang || 'text';
+    return `<pre><div class="code-header"><span class="code-lang">${l}</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div><code class="language-${l}">${escHtml(code.trim())}</code></pre>`;
+  });
+  // Parse remaining markdown
+  try {
+    return marked.parse(processed);
+  } catch {
+    return `<p>${escHtml(text)}</p>`;
+  }
+}
+
+function addCopyButtons(bubble) {
+  // Re-run highlight on newly added code blocks
+  bubble.querySelectorAll('pre code').forEach(block => {
+    if (!block.dataset.highlighted) {
+      hljs.highlightElement(block);
+      block.dataset.highlighted = 'yes';
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FILE HANDLING
+// ═══════════════════════════════════════════════════════════════════════════
+function onFileSelect(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(f => addAttachment(f));
+  e.target.value = '';
+}
+
+function addAttachment(file) {
+  const isImage = file.type.startsWith('image/');
+  const att = { file, name: file.name, type: isImage ? 'image' : 'doc', preview: null };
+
+  if (isImage) {
+    const reader = new FileReader();
+    reader.onload = ev => { att.preview = ev.target.result; renderAttachments(); };
+    reader.readAsDataURL(file);
+  }
+
+  state.attachments.push(att);
+  renderAttachments();
+}
+
+function renderAttachments() {
+  const container = document.getElementById('attachPreview');
+  container.innerHTML = state.attachments.map((att, i) => `
+    <div class="attach-chip">
+      ${att.preview ? `<img src="${att.preview}" class="attach-img-thumb" alt="">` : `<span>${att.type === 'doc' ? getFileIcon(att.name) : '🖼️'}</span>`}
+      <span>${att.name}</span>
+      <button class="attach-chip-rm" onclick="removeAttachment(${i})">✕</button>
+    </div>`).join('');
+}
+
+function removeAttachment(i) { state.attachments.splice(i, 1); renderAttachments(); }
+function clearAttachments() { state.attachments = []; document.getElementById('attachPreview').innerHTML = ''; }
+
+async function uploadToRAG(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('add_to_rag', 'true');
+  try {
+    const r = await fetch(`${API}/api/upload`, { method: 'POST', body: fd });
+    const d = await r.json();
+    if (d.success) toast(`📄 "${file.name}" added to knowledge base`, 'success');
+  } catch(e) { toast('Upload failed: ' + e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PANEL SYSTEM
+// ═══════════════════════════════════════════════════════════════════════════
+function openPanel(tab) {
+  const panel = document.getElementById('rpanel');
+  const isOpen = panel.classList.contains('open');
+  if (isOpen && state.panelOpen === tab) { closePanel(); return; }
+
+  panel.classList.add('open');
+  state.panelOpen = tab;
+  document.getElementById('rpTabs').style.display = 'none';
+
+  const panels = { rag: renderRAGPanel, generate: renderGeneratePanel, settings: renderSettingsPanel, outputs: renderOutputsPanel };
+  if (panels[tab]) panels[tab]();
+}
+
+function closePanel() {
+  document.getElementById('rpanel').classList.remove('open');
+  state.panelOpen = null;
+}
+
+async function renderRAGPanel() {
+  document.getElementById('rpTitle').textContent = '📄 Knowledge Base';
+  try {
+    const r = await fetch(`${API}/api/documents`);
+    const d = await r.json();
+    document.getElementById('rpBody').innerHTML = `
+      <div class="rp-section">
+        <div class="rp-sec-label">Upload Documents</div>
+        <label class="upload-zone" id="uploadZone">
+          <span>📁</span>
+          <p>Click or drag files here</p>
+          <p style="font-size:.68rem;color:var(--text-3);margin-top:4px">PDF, DOCX, TXT, PY, JS, MD, CSV, JSON…</p>
+          <input type="file" multiple accept=".pdf,.txt,.md,.py,.js,.json,.csv,.docx,.yaml,.sql" onchange="panelUpload(event)">
+        </label>
+        <button class="mode-toggle ${state.modes.rag ? 'on' : ''}" onclick="toggleMode('rag');this.classList.toggle('on',state.modes.rag)" style="margin-top:6px;width:100%;justify-content:center">
+          <span class="mode-dot"></span> RAG Mode ${state.modes.rag ? 'ON' : 'OFF'}
+        </button>
+      </div>
+      <div class="rp-section">
+        <div class="rp-sec-label">Stored Documents (${d.count})</div>
+        ${d.documents.length ? d.documents.map(doc => `
+          <div class="doc-item">
+            <span class="doc-icon">${getFileIcon(doc.name)}</span>
+            <div class="doc-info">
+              <div class="doc-name">${doc.name}</div>
+              <div class="doc-meta">${doc.chunk_count} chunks · ~${doc.estimated_tokens.toLocaleString()} tokens</div>
+            </div>
+            <button class="doc-del" onclick="delDoc('${doc.id}')">🗑️</button>
+          </div>`).join('') : '<div style="color:var(--text-3);font-size:.78rem;text-align:center;padding:12px">No documents yet</div>'}
+      </div>
+      <div class="rp-section">
+        <div class="rp-sec-label">How RAG Works</div>
+        <div class="info-box">
+          <strong>RAG = Retrieval Augmented Generation</strong><br><br>
+          1. Upload your docs here<br>
+          2. Enable <strong>RAG Mode</strong> above<br>
+          3. Ask questions about your docs<br>
+          4. AI answers using YOUR data<br><br>
+          <strong>Advanced (if ChromaDB installed):</strong><br>
+          Text → Chunks → Embeddings → Vector Search → Top-K relevant chunks injected
+        </div>
+      </div>`;
+
+    // Drag & drop
+    const zone = document.getElementById('uploadZone');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+    zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag'); Array.from(e.dataTransfer.files).forEach(f => { const fd = new FormData(); fd.append('file',f); fd.append('add_to_rag','true'); fetch(`${API}/api/upload`,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{ if(d.success){toast(`📄 "${f.name}" added`,'success'); renderRAGPanel();}});});});
+  } catch(e) {
+    document.getElementById('rpBody').innerHTML = `<div style="color:var(--error)">Failed: ${e.message}</div>`;
+  }
+}
+
+async function panelUpload(e) {
+  const files = Array.from(e.target.files);
+  for (const f of files) {
+    const fd = new FormData();
+    fd.append('file', f);
+    fd.append('add_to_rag', 'true');
+    try {
+      const r = await fetch(`${API}/api/upload`, { method: 'POST', body: fd });
+      const d = await r.json();
+      if (d.success) toast(`📄 "${f.name}" added`, 'success');
+    } catch(err) { toast('Upload failed', 'error'); }
+  }
+  renderRAGPanel();
+}
+
+async function delDoc(id) {
+  await fetch(`${API}/api/documents/${id}`, { method: 'DELETE' });
+  toast('Document removed', 'info');
+  renderRAGPanel();
+}
+
+function renderGeneratePanel() {
+  document.getElementById('rpTitle').textContent = '🪄 Generate Files';
+  const types = [
+    { id: 'pptx', icon: '📊', label: 'PowerPoint' },
+    { id: 'pdf', icon: '📕', label: 'PDF Report' },
+    { id: 'notebook', icon: '📓', label: 'Notebook' },
+    { id: 'chart', icon: '📈', label: 'Chart' },
+    { id: 'docx', icon: '📘', label: 'Word Doc' },
+    { id: 'image', icon: '🎨', label: 'Image' },
+  ];
+  let selType = 'pptx';
+
+  document.getElementById('rpBody').innerHTML = `
+    <div class="rp-section">
+      <div class="rp-sec-label">File Type</div>
+      <div class="gen-type-grid" id="genTypeGrid">
+        ${types.map(t => `<button class="gen-type-btn ${t.id === selType ? 'active' : ''}" onclick="selGenType('${t.id}')" id="gbt_${t.id}">${t.icon}<br>${t.label}</button>`).join('')}
+      </div>
+    </div>
+    <div class="rp-section">
+      <div class="rp-sec-label">Topic / Prompt</div>
+      <textarea class="rp-input rp-textarea" id="genTopic" placeholder="E.g. Machine Learning fundamentals, 6 slides…"></textarea>
+    </div>
+    <div class="rp-section" id="genExtras">
+      <div class="rp-sec-label">Theme</div>
+      <select class="rp-input" id="genTheme">
+        <option value="dark">Dark (Modern)</option>
+        <option value="light">Light (Professional)</option>
+        <option value="corporate">Corporate (Blue)</option>
+        <option value="minimal">Minimal</option>
+      </select>
+    </div>
+    <div class="rp-section">
+      <button class="rp-btn" id="genBtn" onclick="runGenerate()">✨ Generate</button>
+    </div>
+    <div id="genResult"></div>`;
+
+  window.selGenType = (t) => {
+    selType = t;
+    document.querySelectorAll('.gen-type-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('gbt_' + t).classList.add('active');
+    document.getElementById('genExtras').style.display = (t === 'image' || t === 'chart') ? 'none' : '';
+  };
+}
+
+async function runGenerate() {
+  const topic = document.getElementById('genTopic')?.value?.trim();
+  if (!topic) { toast('Enter a topic first', 'info'); return; }
+
+  const selBtn = document.querySelector('.gen-type-btn.active');
+  const type = selBtn?.id?.replace('gbt_', '') || 'pptx';
+  const model = document.getElementById('modelSel').value;
+
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true; btn.textContent = '⏳ Generating…';
+  document.getElementById('genResult').innerHTML = '<div style="color:var(--text-3);font-size:.8rem;padding:8px">This may take 5-15 seconds…</div>';
+
+  try {
+    let result;
+    if (type === 'image') {
+      const r = await fetch(`${API}/api/generate/image`, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ prompt: topic, width: 1024, height: 1024 })
+      });
+      const d = await r.json();
+      document.getElementById('genResult').innerHTML = `
+        <img src="${d.image_url}" style="width:100%;border-radius:var(--r);margin-top:8px;border:1px solid var(--border)" onerror="this.alt='Generation in progress…'">
+        <a href="${d.image_url}" target="_blank" style="display:block;text-align:center;font-size:.75rem;color:var(--accent);margin-top:6px">Open full size ↗</a>`;
+    } else {
+      const r = await fetch(`${API}/api/ai-generate`, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ type, topic, instructions: topic, model })
+      });
+      const d = await r.json();
+      if (d.success) {
+        const icons = { pptx: '📊', pdf: '📕', notebook: '📓', chart: '📈', docx: '📘' };
+        document.getElementById('genResult').innerHTML = `
+          <a href="${d.download_url}" class="out-item" download="${d.filename}" style="margin-top:8px">
+            <span class="file-card-icon">${icons[type]||'📄'}</span>
+            <span class="out-name">${d.filename}</span>
+            <span class="out-meta">Download ↓</span>
+          </a>`;
+        toast('File generated!', 'success');
+      } else {
+        document.getElementById('genResult').innerHTML = `<div style="color:var(--error);font-size:.78rem">${d.detail || JSON.stringify(d)}</div>`;
+      }
+    }
+  } catch(e) {
+    document.getElementById('genResult').innerHTML = `<div style="color:var(--error);font-size:.78rem">Failed: ${e.message}</div>`;
+  }
+
+  btn.disabled = false; btn.textContent = '✨ Generate';
+}
+
+function renderSettingsPanel() {
+  document.getElementById('rpTitle').textContent = '⚙️ Settings';
+  const s = state.settings;
+  document.getElementById('rpBody').innerHTML = `
+    <div class="rp-section">
+      <div class="rp-sec-label">Temperature</div>
+      <div class="slider-row">
+        <span class="slider-label">Creativity</span>
+        <input type="range" min="0" max="2" step="0.05" value="${s.temperature}" oninput="state.settings.temperature=+this.value;this.nextElementSibling.textContent=this.value.slice(0,4)">
+        <span class="slider-val">${s.temperature}</span>
+      </div>
+      <div class="rp-sec-label" style="margin-top:10px">Max Output Tokens</div>
+      <div class="slider-row">
+        <span class="slider-label">Max tokens</span>
+        <input type="range" min="256" max="32768" step="256" value="${s.maxTokens}" oninput="state.settings.maxTokens=+this.value;this.nextElementSibling.textContent=this.value">
+        <span class="slider-val">${s.maxTokens}</span>
+      </div>
+    </div>
+    <div class="rp-section">
+      <div class="rp-sec-label">Custom System Prompt</div>
+      <textarea class="rp-input rp-textarea" placeholder="Override the default system prompt…" oninput="state.settings.systemPrompt=this.value">${s.systemPrompt}</textarea>
+    </div>
+    <div class="rp-section">
+      <div class="rp-sec-label">Backend Info</div>
+      <div class="info-box">
+        <strong>FastAPI</strong> server on port 8000<br>
+        Docs: <a href="/docs" target="_blank" style="color:var(--accent)">/docs</a> · 
+        Health: <a href="/api/health" target="_blank" style="color:var(--accent)">/api/health</a><br><br>
+        <code>main.py</code> concepts:<br>
+        • Async/await & streaming SSE<br>
+        • Pydantic request validation<br>
+        • Groq LLM integration<br>
+        • RAG pipeline (simple + ChromaDB)<br>
+        • Tool-based file generation<br>
+        • Token tracking & cost calc<br>
+        • Vision model integration<br>
+        • PPT / PDF / DOCX / Notebook gen
+      </div>
+    </div>`;
+}
+
+async function renderOutputsPanel() {
+  document.getElementById('rpTitle').textContent = '📥 Downloads';
+  document.getElementById('rpBody').innerHTML = '<div style="color:var(--text-3);font-size:.78rem;padding:8px">Loading…</div>';
+  try {
+    const r = await fetch(`${API}/api/outputs`);
+    const d = await r.json();
+    const icons = { pptx:'📊', pdf:'📕', docx:'📘', ipynb:'📓', png:'🖼️', jpg:'🖼️', svg:'🎨', md:'📝' };
+    document.getElementById('rpBody').innerHTML = d.files.length ?
+      d.files.map(f => {
+        const ext = f.name.split('.').pop();
+        return `<a href="${f.download_url}" class="out-item" download="${f.name}">
+          <span style="font-size:18px">${icons[ext]||'📄'}</span>
+          <span class="out-name">${f.name}</span>
+          <span class="out-meta">${(f.size/1024).toFixed(1)}KB ↓</span>
+        </a>`;
+      }).join('') :
+      '<div style="color:var(--text-3);font-size:.78rem;text-align:center;padding:16px">No generated files yet.<br>Use 🪄 Generate to create files.</div>';
+  } catch(e) {
+    document.getElementById('rpBody').innerHTML = `<div style="color:var(--error)">Failed: ${e.message}</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TOKEN TRACKING
+// ═══════════════════════════════════════════════════════════════════════════
+async function pollTokens() {
+  try {
+    const r = await fetch(`${API}/api/tokens/stats`);
+    const d = await r.json();
+    document.getElementById('tokIn').textContent = d.total_prompt_tokens.toLocaleString();
+    document.getElementById('tokOut').textContent = d.total_completion_tokens.toLocaleString();
+    document.getElementById('tokTotal').textContent = d.total_tokens.toLocaleString();
+    document.getElementById('tokReqs').textContent = d.total_requests.toLocaleString();
+    document.getElementById('tokCost').textContent = (d.estimated_total_cost_usd || 0).toFixed(6);
+
+    // Context window usage (based on current model)
+    const modelCtx = { 'llama-3.3-70b-versatile': 128000, 'llama-3.1-8b-instant': 128000, 'mixtral-8x7b-32768': 32768, 'gemma2-9b-it': 8192 };
+    const ctx = modelCtx[state.model] || 128000;
+    const pct = Math.min(100, (d.total_tokens / ctx) * 100);
+    document.getElementById('tokBar').style.width = pct + '%';
+    document.getElementById('tokPct').textContent = pct.toFixed(1) + '%';
+  } catch {}
+}
+
+async function resetTokens() {
+  await fetch(`${API}/api/tokens/reset`, { method: 'POST' });
+  toast('Token counter reset', 'info');
+  await pollTokens();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UTILITY
+// ═══════════════════════════════════════════════════════════════════════════
+function newChat() {
+  state.convId = null;
+  state.titleSet = false;
+  document.getElementById('msgs').innerHTML = '';
+  document.getElementById('welcome').style.display = '';
+  document.getElementById('topTitle').textContent = 'New Conversation';
+  document.querySelectorAll('.hist-item').forEach(i => i.classList.remove('active'));
+}
+
+function setTitle(text) {
+  const title = text.slice(0, 48) + (text.length > 48 ? '…' : '');
+  document.getElementById('topTitle').textContent = title;
+  addHistItem(title);
+}
+
+function addHistItem(title) {
+  const area = document.getElementById('histArea');
+  const item = document.createElement('div');
+  item.className = 'hist-item active';
+  item.innerHTML = `<span class="hist-dot"></span><span style="flex:1;overflow:hidden;text-overflow:ellipsis">${title}</span><button class="hist-del" onclick="event.stopPropagation();this.parentElement.remove()">✕</button>`;
+  item.onclick = () => { document.querySelectorAll('.hist-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); };
+  document.querySelectorAll('.hist-item').forEach(i=>i.classList.remove('active'));
+  area.appendChild(item);
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  state.sidebarOpen = !state.sidebarOpen;
+  sb.classList.toggle('sidebar-hidden', !state.sidebarOpen);
+}
+
+function toggleMode(m) {
+  state.modes[m] = !state.modes[m];
+  const el = document.getElementById('tog' + m.charAt(0).toUpperCase() + m.slice(1));
+  if (el) el.classList.toggle('on', state.modes[m]);
+}
+
+function onModelChange() {
+  const sel = document.getElementById('modelSel');
+  const text = sel.options[sel.selectedIndex].text.split('—')[0].trim();
+  document.getElementById('modelBadge').textContent = text;
+  state.model = sel.value;
+}
+
+function setPrompt(t) {
+  const el = document.getElementById('inp');
+  el.value = t; autoH(el); updCC(); el.focus();
+}
+
+function regenerate() { /* Could re-send last user message */ toast('Retry: edit your message and send again', 'info'); }
+
+function copyMsgText(btn) {
+  const bubble = btn.closest('.msg-body').querySelector('.bubble');
+  navigator.clipboard.writeText(bubble.innerText).then(() => toast('Copied!', 'success'));
+}
+
+function copyCode(btn) {
+  const code = btn.closest('pre').querySelector('code');
+  navigator.clipboard.writeText(code.innerText).then(() => { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 2000); });
+}
+
+function onKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }
+function autoH(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 200) + 'px'; }
+function updCC() { document.getElementById('charCnt').textContent = document.getElementById('inp').value.length; }
+function scrollBottom() { const w = document.getElementById('msgsWrap'); w.scrollTop = w.scrollHeight; }
+function setLoading(on) { document.getElementById('lbar').classList.toggle('running', on); }
+function setStatus(t) { document.getElementById('statusText').textContent = t; }
+function now() { return new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }); }
+function escHtml(t) { return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function getFileIcon(name) {
+  const ext = (name||'').split('.').pop().toLowerCase();
+  return {pdf:'📕',py:'🐍',js:'🟨',ts:'🔷',html:'🌐',css:'🎨',json:'📋',csv:'📊',md:'📝',txt:'📄',docx:'📘',yaml:'⚙️',sql:'🗃️',ipynb:'📓',pptx:'📊'}[ext]||'📄';
+}
+
+function toast(msg, type='info') {
+  const icons = {success:'✅',error:'❌',info:'ℹ️',warning:'⚠️'};
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+</script>
+</body>
+</html>

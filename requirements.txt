@@ -1,0 +1,58 @@
+# ═══════════════════════════════════════════════════════════════
+# NeuraChat Ultra — Requirements
+# Install: pip install -r requirements.txt
+# ═══════════════════════════════════════════════════════════════
+
+# ── Web Framework ─────────────────────────────────────────────
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+
+# ── AI / LLM ──────────────────────────────────────────────────
+groq==0.4.2
+
+# ── Data Validation ───────────────────────────────────────────
+pydantic==2.5.3
+
+# ── File Processing (Reading) ─────────────────────────────────
+PyPDF2==3.0.1
+python-docx==1.1.0
+aiofiles==23.2.1
+Pillow==10.2.0
+
+# ── Token Counting ────────────────────────────────────────────
+tiktoken==0.6.0
+
+# ── File Generation ───────────────────────────────────────────
+python-pptx==0.6.23         # PowerPoint generation
+reportlab==4.1.0             # PDF generation
+nbformat==5.9.2              # Jupyter Notebook generation
+matplotlib==3.8.2            # Charts and graphs
+numpy==1.26.3                # Numerical computing (needed by matplotlib)
+
+# ── Utilities ─────────────────────────────────────────────────
+python-dotenv==1.0.0
+httpx==0.26.0
+
+# ═══════════════════════════════════════════════════════════════
+# OPTIONAL — Advanced RAG with Vector Embeddings
+# Install separately when ready:
+# pip install chromadb sentence-transformers
+# ═══════════════════════════════════════════════════════════════
+# chromadb==0.4.22          # Vector database (persistent RAG)
+# sentence-transformers     # Text embeddings (downloads ~90MB model)
+
+# ═══════════════════════════════════════════════════════════════
+# OPTIONAL — LlamaIndex Full RAG Framework
+# pip install llama-index llama-index-llms-groq llama-index-embeddings-huggingface
+# ═══════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════
+# OPTIONAL — Local Model Inference (No GPU needed, pure CPU)
+# pip install llama-cpp-python
+# ═══════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════
+# OPTIONAL — Fine-tuning (Run on Google Colab, not locally)
+# pip install transformers peft accelerate bitsandbytes datasets trl
+# ═══════════════════════════════════════════════════════════════
