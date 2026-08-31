@@ -1,4 +1,4 @@
-# 🧠 NeuraChat Ultra v2.0
+# 🧠 NeuraChat Ultra
 
 A Claude-like AI assistant with a production-grade UI, built on **FastAPI + Groq + RAG + Tool Calling**.
 
