@@ -125,3 +125,5 @@ Every concept is documented with multi-line comments in `main.py`:
 - **Vision models** — Base64 image encoding, multi-modal message format
 - **File generation** — PPT, PDF, DOCX, .ipynb, charts
 - **Tool calling** — Structured JSON output → file creation pipeline
+
+Created with the help of Claude
